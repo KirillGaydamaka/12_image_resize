@@ -60,20 +60,28 @@ def resize_image(path_to_original, path_to_result, width, height):
     resized_image.save(path_to_result)
 
 
+def check_original(path_to_original):
+    if not os.path.exists(path_to_original):
+        print('File does not exist')
+        return False
+
+    if not os.path.isfile(path_to_original):
+        print('Not a file')
+        return False
+
+    if not os.path.splitext(path_to_original)[1] in ['.jpg', '.png']:
+        print('Filetype of original is not supported')
+        return False
+    return True
+
+
 def main():
     parser = create_parser()
 
     path_to_original = parser.input
-    if not os.path.exists(path_to_original):
-        print('File does not exist')
-        return None
 
-    if not os.path.isfile(path_to_original):
-        print('Not a file')
-        return None
-
-    if not os.path.splitext(path_to_original)[1] in ['.jpg', '.png']:
-        print('Filetype of original is not supported')
+    original_found = check_original(path_to_original)
+    if not original_found:
         return None
 
     if parser.output and not os.path.splitext(
