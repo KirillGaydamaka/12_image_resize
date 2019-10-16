@@ -21,9 +21,6 @@ def create_parser():
 def get_result_size(width, height, scale, original_width, original_height):
     reshaped = False
 
-    if scale and (width or height):
-        raise ResizeParametersException('Only scale or size can be specified')
-
     if width and not height:
         result_width = width
         result_height = original_height * result_width / original_width
@@ -61,18 +58,13 @@ def resize_image(path_to_original, path_to_result, width, height):
 
 
 def check_original(path_to_original):
-    if not os.path.exists(path_to_original):
-        print('File does not exist')
-        return False
-
-    if not os.path.isfile(path_to_original):
-        print('Not a file')
+    if not (os.path.exists(path_to_original) and
+            os.path.isfile(path_to_original)):
         return False
 
     try:
         Image.open(path_to_original)
     except OSError:
-        print('Can not open original image')
         return False
 
     return True
@@ -80,11 +72,11 @@ def check_original(path_to_original):
 
 def main():
     parser = create_parser()
-
     path_to_original = parser.input
 
-    original_found = check_original(path_to_original)
-    if not original_found:
+    original_ok = check_original(path_to_original)
+    if not original_ok:
+        print('Can not open original file')
         return None
 
     if parser.output and not os.path.splitext(
@@ -92,16 +84,19 @@ def main():
         return None
 
     image = Image.open(path_to_original)
-
     original_width = image.width
     original_height = image.height
 
     width = parser.width
     height = parser.height
     scale = parser.scale
+
     if not (scale or width or height):
         print('Size or scale must be specified')
         return None
+
+    if scale and (width or height):
+        raise ResizeParametersException('Only scale or size can be specified')
 
     result_width, result_height, reshaped = get_result_size(
         width, height, scale, original_width, original_height)
