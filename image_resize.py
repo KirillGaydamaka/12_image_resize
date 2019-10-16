@@ -69,9 +69,12 @@ def check_original(path_to_original):
         print('Not a file')
         return False
 
-    if not os.path.splitext(path_to_original)[1] in ['.jpg', '.png']:
-        print('Filetype of original is not supported')
+    try:
+        Image.open(path_to_original)
+    except OSError:
+        print('Can not open original image')
         return False
+
     return True
 
 
@@ -86,7 +89,6 @@ def main():
 
     if parser.output and not os.path.splitext(
             parser.output)[1] in ['.jpg', '.png']:
-        print('Filetype of result is not supported')
         return None
 
     image = Image.open(path_to_original)
